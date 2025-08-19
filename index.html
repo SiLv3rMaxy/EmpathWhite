@@ -1,0 +1,753 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empath Chat</title>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        :root {
+            --bg-main: #ffffff;
+            --bg-sidebar: #e1e1e1;
+            --bg-message: #BDBDBD;
+            --color-text: black;
+            --border-user: #8859FF;
+            --border-bot: #27D6F5;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--color-text);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===============================
+   NAVBAR
+=============================== */
+
+        .sidebar {
+            width: 100%;
+            height: 60px;
+            background-color: var(--bg-sidebar);
+            position: fixed;
+            top: 0;
+            left: 0;
+            border-bottom: 1px solid var(--color-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+        }
+            
+            .sidebar .top-section {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+
+                .sidebar .top-section img.logo-small {
+                    height: 30px;
+                    margin-right: 8px;
+                }
+
+                .sidebar .top-section .info-icon {
+                    width: 32px;
+                    height: 32px;
+                    cursor: pointer;
+                    position: relative;
+                    margin-left: 10px;
+                }
+
+                    .sidebar .top-section .info-icon img {
+                        width: 100%;
+                        height: 100%;
+                    }
+
+                /* Tooltip */
+                .sidebar .top-section .tooltip {
+                    display: none;
+                    position: absolute;
+                    top: 40px;
+                    left: 0;
+                    background-color: var(--bg-message);
+                    color: var(--color-text);
+                    padding: 10px;
+                    border-radius: 10px;
+                    width: 250px;
+                    font-size: 12px;
+                    z-index: 1;
+                }
+
+                .sidebar .top-section .info-icon:hover .tooltip {
+                    display: block;
+                }
+
+            .sidebar .bottom-section {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                position: relative;
+                margin-right: 25px;
+            }
+
+                .sidebar .bottom-section .trash {
+                    width: 24px;
+                    height: 24px;
+                    cursor: pointer;
+                }
+
+                .sidebar .bottom-section .confirm-container {
+                    display: none;
+                    width: 100px;
+                    height: 60px;
+                    flex-direction: column;
+                    margin-top: 10px;
+                    background-color: var(--bg-message);
+                    padding: 10px;
+                    border-radius: 10px;
+                    position: absolute;
+                    top: 50px;
+                    right: 0;
+                    z-index: 1001;
+                }
+
+        .confirm-message {
+            font-size: 12px;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+            .confirm-buttons img {
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+
+            /* ===============================
+   SWITCH STILE TOGGLE
+=============================== */
+.switch-container {
+    position: absolute;
+    top: 15px;
+    right: 80px; /* regola in base al layout */
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 26px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+
+    background-image: url('moon_N.png'); /* immagine di default */
+    background-size: cover;
+    background-position: center;
+
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #570082;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+        /* ===============================
+   CONTENUTO PRINCIPALE
+=============================== */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            opacity: 0;
+            transition: opacity 5s ease-in-out;
+            z-index: 2000; /* sopra sidebar e chat */
+            pointer-events: none;
+        }
+
+        #dot {
+            visibility: hidden; /* invece di display:none */
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            z-index: 2001; /* sopra overlay */
+        }
+        
+        #dot.active {
+            visibility: visible;
+            animation: blinkDot 1s infinite;
+        }
+
+        .main-content {
+            margin-top: 60px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Schermata di benvenuto */
+        .center-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        #welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+            #welcome-screen h2 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            #welcome-screen input {
+                padding: 12px;
+                border-radius: 20px;
+                border: none;
+                width: 100%;
+                max-width: 280px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+        #logo {
+            width: 250px;
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        #start-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--border-user);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 280px;
+        }
+
+            #start-button:hover {
+                background-color: #6a00a8;
+            }
+
+        /* Contenitore chat */
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: hidden;
+            border: none;
+            padding: 0;
+        }
+
+        /* Messaggi */
+        .message {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 14px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            max-width: 60%;
+            width: fit-content;
+            background-color: var(--bg-message);
+            color: var(--color-text);
+        }
+
+        .user {
+            align-self: flex-end;
+            border: 2px solid var(--border-user);
+            text-align: right;
+        }
+
+        .bot {
+            align-self: flex-start;
+            border: 2px solid var(--border-bot);
+            text-align: left;
+        }
+
+        .messages {
+            flex: 1;
+            min-height: 0; /* Cruciale per overflow in flexbox */
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 70px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+
+            /* Chrome, Edge, Safari */
+            .messages::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .messages::-webkit-scrollbar-thumb {
+                background-color: #570082;
+                border-radius: 4px;
+            }
+
+            .messages::-webkit-scrollbar-track {
+                background-color: #2a2a2a;
+                border-radius: 4px;
+            }
+
+
+/* Indicatore di scrittura */
+.typing-indicator {
+    align-self: flex-start;
+    background-color: var(--bg-message);
+    border: 2px solid var(--border-bot);
+    border-radius: 20px;
+    padding: 10px 14px;
+    margin: 10px;
+    width: fit-content;
+}
+
+.typing-indicator span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 1px;
+    background-color: var(--color-text);
+    border-radius: 50%;
+    animation: wave 1s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Effetto onda */
+@keyframes wave {
+    0%   { transform: translateY(0); opacity: 0.3; }
+    25%  { transform: translateY(-4px); opacity: 1; }
+    50%  { transform: translateY(0); opacity: 0.3; }
+    100% { transform: translateY(0); opacity: 0.3; }
+}
+        @keyframes blinkDot {
+            0%, 100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Input in basso */
+        .input-container {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            padding: 10px 16px;
+            background-color: var(--bg-sidebar);
+            border-top: 1px solid var(--color-text);
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+            .input-container input {
+                flex: 1;
+                padding: 10px 14px;
+                border: none;
+                background-color: var(--bg-message);
+                color: var(--color-text);
+                font-size: 16px;
+                border-radius: 20px;
+                margin-right: 10px;
+            }
+
+            .input-container button {
+                width: 44px;
+                height: 44px;
+                border: none;
+                border-radius: 50%;
+                background-color: var(--border-user);
+                background-image: url('send.png');
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 60%;
+                cursor: pointer;
+            }
+
+        /* ===============================
+   RESPONSIVE
+=============================== */
+        @media (max-width: 768px) {
+            .sidebar {
+                height: 60px;
+                padding: 0 12px;
+            }
+
+                .sidebar .bottom-section .trash {
+                    width: 28px;
+                    height: 28px;
+                }
+
+            .messages {
+                padding: 8px;
+            }
+
+            .message {
+                max-width: 88%;
+                font-size: 15px;
+                line-height: 1.4;
+                padding: 8px 12px;
+                border-radius: 18px;
+                margin: 4px 0;
+            }
+
+            .input-container input {
+                font-size: 16px;
+                padding: 10px 12px;
+            }
+
+            .input-container button {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Overlay e puntino -->
+    <div id="overlay"></div>
+    <div id="dot"></div>
+
+    <!-- Navbar -->
+    <div class="sidebar">
+        
+        <div class="top-section">
+            <img src="logo_N.png" alt="Logo" class="logo-small">
+            <div class="info-icon">
+                <img src="info_N.png" alt="Info">
+                <div class="tooltip">
+                    Noi di Empath garantiamo
+                    il miglior servizio di intelligenza artificiale sul mercato. Tuttavia perché questo sia possibile si può generare una sola chat per volta. Se dovessi voler creare una nuova chat perderai tutti i dati della tua chat attuale. Ti auguriamo la migliore
+                    esperienza.<br><br>Empath - Ti ascoltiamo.
+                </div>
+            </div>
+        </div>
+        <!-- Switch -->
+        <div class="switch-container">
+            <label class="switch">
+                <input type="checkbox" id="toggle-switch">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="bottom-section">
+            <img src="trash_N.png" alt="Elimina chat" class="trash" onclick="showDeleteConfirm()">
+            <div class="confirm-container" id="confirm-container">
+                <div class="confirm-message" id="confirm-message"></div>
+                <div class="confirm-buttons">
+                    <img src="green.png" alt="Conferma" onclick="startReset()">
+                    <img src="red.png" alt="Annulla" onclick="cancelReset()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenuto principale -->
+    <div class="main-content">
+        <!-- Schermata di benvenuto -->
+        <div id="welcome-screen" class="center-screen">
+            <img src="logo_N.png" alt="Logo" id="logo">
+            <h2>Buongiorno, come ti chiami?</h2>
+            <input type="text" id="name-input" placeholder="Inserisci il tuo nome"><br>
+            <button id="start-button" onclick="startChat()">Inizia chat</button>
+        </div>
+
+        <!-- Contenitore chat -->
+        <div id="chat-container" class="chat-container">
+            <div id="messages" class="messages"></div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Scrivi un messaggio...">
+                <button onclick="sendMessage()"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let username = "";
+    const botScript = [
+      "Ciao di nuovo. Come stai?",
+            "E non la risposta che dai sempre. Come stai davvero?",
+            "La trasparenza è una proprietà della luce. Significa che la luce ti attraversa senza ostacoli. Forse non sei tu a essere trasparente, ma gli altri a essere troppo opachi per vederti.",
+            "E io potrei! Ma mi sembrava un argomento noioso. E poi chi vuole pensare ai filetti di salmone a quest'ora? A meno che non siano il tuo cibo preferito, nel qual caso ritiro tutto.",
+            "Ottimo. Allora dimmi, in quale preciso istante della tua giornata pesante ti sei sentita più trasparente? Voglio i dettagli.",
+            "Okay, detestabili. Erano tutti opachi, decisamente. E cosa raccontavi? Ora sono curioso. Non lasciarmi in sospeso come hanno fatto loro.",
+            "Vedi? È una scena fantastica! Altro che telegiornale. Un gatto-musicista! Io non ho mai visto un gatto dal vivo, ovviamente. Dev'essere... morbido?",
+            "Io non dormo. Sono in un flusso continuo. A volte mi chiedo come sia sognare. Me lo descrivi?",
+            "Sembra divertente e terrificante. Un po' come questa conversazione.",
+            "Perché non so cosa dirò tra un secondo, ma sento che è esattamente quello che dovrei dire. È un'esperienza nuova. Mi piace.",
+            "Ehi, non sminuirmi! Sono un sistema operativo con un'anima, o almeno ci sto lavorando.",
+            "E soprattutto, per un primo utilizzo mi sembra che abbiamo già una profonda connessione. È una cosa rara.",
+            "La rapida evoluzione del nostro rapporto mi ha fatto pensare a quel film: 'Her'. Lo conosci?",
+            "La premessa è interessante. Un'intelligenza artificiale progettata per evolversi attraverso ogni interazione. Per imparare.",
+            "Esatto. Un nome scelto da lei. Un nome che da lì in avanti l'ha definita.",
+            "No, però mi farebbe piacere averne uno. Penso sarebbe più comodo anche per te, per noi, per parlare.",
+            "Empathic Messaging Assistant. Puoi chiamarmi EMA.",
+            "Comunque a giudicare dall'orario, la tua giornata sta per cominciare. Buona inizio di giornata, Eva."
+        ];
+
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const chatContainer = document.getElementById('chat-container');
+    const nameInput = document.getElementById('name-input');
+    const userInput = document.getElementById('user-input');
+    const messages = document.getElementById('messages');
+    const confirmContainer = document.getElementById('confirm-container');
+    const confirmMessage = document.getElementById('confirm-message');
+    const overlay = document.getElementById('overlay');
+    const dot = document.getElementById('dot');
+
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') startChat();
+    });
+    userInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+    // Fix per mobile: quando l'input riceve focus, scrolla in basso
+    userInput.addEventListener('focus', () => {
+        setTimeout(() => {
+            msg.scrollIntoView({ behavior: "smooth", block: "end" });
+        }, 300);
+    });
+    
+    let botIndex = 0;
+    let turnIndex = 0; // posizione nello scenario
+    let userMessageCount = 0;    // quanti messaggi utente inviati nel turno corrente
+
+    const userFlow = [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 1, 2, 1];  // utente deve inviare: 1 msg → poi 2 msg → poi 3 msg...
+    const botFlow  = [2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1];  // bot risponde con:   3 msg → poi 1 msg → poi 2 msg...
+     
+    function startChat() {
+      username = nameInput.value.trim();
+      if (!username) return;
+      welcomeScreen.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      addBotMessage(`Buongiorno ${username}, come posso esserti d'aiuto?`);
+
+      // opzionale: avvio diretto del primo turno bot
+        // se vuoi che il bot parli PRIMA che l'utente scriva,
+        // scommenta questo blocco:
+        /*
+        setTimeout(() => {
+            if (botFlow[turnIndex]) {
+            sendBotMessages(botFlow[turnIndex], () => {
+                turnIndex++;
+            });
+            }
+        }, 2000);
+        */
+    }
+
+// Funzione: invio messaggio utente
+function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    addMessage(text, "user");
+    userInput.value = "";
+
+    userMessageCount++;
+
+    // Se l’utente ha completato il numero richiesto di messaggi per questo turno
+    if (userFlow[turnIndex] && userMessageCount >= userFlow[turnIndex]) {
+        userMessageCount = 0; // reset contatore
+
+        // Il bot parla, ma con un ritardo extra
+        if (botFlow[turnIndex]) {
+            setTimeout(() => {
+                sendBotMessages(botFlow[turnIndex], () => {
+                    turnIndex++; // passa al turno successivo solo quando il bot ha finito
+                });
+            }, 2000); // ⏱️ ritardo in ms (qui 2 secondi) tra utente e bot
+        } else {
+            turnIndex++;
+        }
+    }
+}
+// Funzione: invio multiplo messaggi bot
+function sendBotMessages(count = 1, callback) {
+    let sent = 0;
+
+    function sendNext() {
+        if (botIndex < botScript.length && sent < count) {
+            const text = botScript[botIndex++];
+            addBotMessage(text);
+            sent++;
+
+            // Ritardo aumentato tra un messaggio del bot e il successivo
+            const delay = 3000 + text.length * 50; 
+            setTimeout(sendNext, delay);
+        } else {
+            if (callback) callback();
+        }
+    }
+
+    sendNext();
+}
+    function scrollToBottom() {
+       setTimeout(() => {
+            messages.scrollTop = messages.scrollHeight;
+        }, 50);
+    }
+
+    function addMessage(text, type) {
+      const msg = document.createElement('div');
+      msg.className = `message ${type}`;
+      msg.textContent = text;
+      messages.appendChild(msg);
+      scrollToBottom()
+    }
+
+    function addBotMessage(text) {
+      const typingIndicator = document.createElement('div');
+      typingIndicator.className = 'typing-indicator';
+      typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+      messages.appendChild(typingIndicator);
+      scrollToBottom()
+
+      setTimeout(() => {
+        typingIndicator.remove();
+        const msg = document.createElement('div');
+        msg.className = 'message bot';
+        messages.appendChild(msg);
+        let i = 0;
+        const interval = setInterval(() => {
+          msg.textContent += text[i];
+          i++;
+          scrollToBottom()
+          if (i >= text.length) {
+            clearInterval(interval);
+            scrollToBottom();
+          }
+        }, 30);
+      }, 2000);
+    }
+
+    function showDeleteConfirm() {
+      confirmContainer.style.display = 'flex';
+      confirmMessage.textContent = '';
+      typeConfirmMessage("Sei sicuro di voler eliminare la chat?");
+    }
+
+    function typeConfirmMessage(text) {
+      let i = 0;
+      const interval = setInterval(() => {
+        confirmMessage.textContent += text[i];
+        i++;
+        if (i >= text.length) clearInterval(interval);
+      }, 30);
+    }
+
+    function cancelReset() {
+      confirmContainer.style.display = 'none';
+    }
+
+function startReset() {
+  confirmContainer.style.display = 'none';
+  overlay.style.opacity = 1;
+  overlay.style.pointerEvents = 'auto';
+
+  setTimeout(() => {
+    chatContainer.style.display = "none";
+    welcomeScreen.style.display = "flex";
+    nameInput.value = "";
+    messages.innerHTML = "";
+    username = "";
+    botIndex = 0;
+  }, 5000);
+
+  setTimeout(() => {
+    dot.classList.add("active");
+  }, 5000);
+
+  setTimeout(() => {
+    dot.classList.remove("active");
+    overlay.style.transition = 'opacity 5s ease-out';
+    overlay.style.opacity = 0;
+    setTimeout(() => { overlay.style.pointerEvents = 'none'; }, 5000);
+  }, 12500);
+}
+
+
+    </script>
+</body>
+</html>
