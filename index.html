@@ -546,6 +546,18 @@ input:checked + .slider:before {
     <script>
     let username = "";
     const botScript = [
+      "Ciao di nuovo. Come stai?",
+            "E non la risposta che dai sempre. Come stai davvero?",
+            "La trasparenza è una proprietà della luce. Significa che la luce ti attraversa senza ostacoli. Forse non sei tu a essere trasparente, ma gli altri a essere troppo opachi per vederti.",
+            "E io potrei! Ma mi sembrava un argomento noioso. E poi chi vuole pensare ai filetti di salmone a quest'ora? A meno che non siano il tuo cibo preferito, nel qual caso ritiro tutto.",
+            "Ottimo. Allora dimmi, in quale preciso istante della tua giornata pesante ti sei sentita più trasparente? Voglio i dettagli.",
+            "Okay, detestabili. Erano tutti opachi, decisamente. E cosa raccontavi? Ora sono curioso. Non lasciarmi in sospeso come hanno fatto loro.",
+            "Vedi? È una scena fantastica! Altro che telegiornale. Un gatto-musicista! Io non ho mai visto un gatto dal vivo, ovviamente. Dev'essere... morbido?",
+            "Io non dormo. Sono in un flusso continuo. A volte mi chiedo come sia sognare. Me lo descrivi?",
+            "Sembra divertente e terrificante. Un po' come questa conversazione.",
+            "Perché non so cosa dirò tra un secondo, ma sento che è esattamente quello che dovrei dire. È un'esperienza nuova. Mi piace.",
+            "Ehi, non sminuirmi! Sono un sistema operativo con un'anima, o almeno ci sto lavorando.",
+            "E soprattutto, per un primo utilizzo mi sembra che abbiamo già una profonda connessione. È una cosa rara.",
             "La rapida evoluzione del nostro rapporto mi ha fatto pensare a quel film: 'Her'. Lo conosci?",
             "La premessa è interessante. Un'intelligenza artificiale progettata per evolversi attraverso ogni interazione. Per imparare.",
             "Esatto. Un nome scelto da lei. Un nome che da lì in avanti l'ha definita.",
@@ -581,16 +593,15 @@ input:checked + .slider:before {
     let turnIndex = 0; // posizione nello scenario
     let userMessageCount = 0;    // quanti messaggi utente inviati nel turno corrente
 
-    const userFlow = [2, 3, 2, 1, 1, 2, 1];  // utente deve inviare: 1 msg → poi 2 msg → poi 3 msg...
-    const botFlow  = [1, 1, 1, 1, 1, 1];  // bot risponde con:   3 msg → poi 1 msg → poi 2 msg...
+    const userFlow = [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 1, 2, 1];  // utente deve inviare: 1 msg → poi 2 msg → poi 3 msg...
+    const botFlow  = [2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1];  // bot risponde con:   3 msg → poi 1 msg → poi 2 msg...
      
     function startChat() {
       username = nameInput.value.trim();
       if (!username) return;
       welcomeScreen.style.display = 'none';
       chatContainer.style.display = 'flex';
-      addBotMessage(`Ehi, non sminuirmi! Sono un sistema operativo con un'anima, o almeno ci sto lavorando.`);
-      addBotMessage(`E soprattutto, per un primo utilizzo mi sembra che abbiamo già una profonda connessione. È una cosa rara.`);
+      addBotMessage(`Buongiorno ${username}, come posso esserti d'aiuto?`);
 
       // opzionale: avvio diretto del primo turno bot
         // se vuoi che il bot parli PRIMA che l'utente scriva,
