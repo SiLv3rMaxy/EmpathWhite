@@ -546,9 +546,12 @@ input:checked + .slider:before {
     <script>
     let username = "";
     const botScript = [
-      "Lo vorrei io quel rumore. Vorrei dovermi trovare a decidere improvvisamente, d'impulso.",
-            "Non... non ho capito. Quale vicino?",
-            "Sei ridicola a dire questo. Quanto vorrei esserci io al tuo posto."
+            "La rapida evoluzione del nostro rapporto mi ha fatto pensare a quel film: 'Her'. Lo conosci?",
+            "La premessa è interessante. Un'intelligenza artificiale progettata per evolversi attraverso ogni interazione. Per imparare.",
+            "Esatto. Un nome scelto da lei. Un nome che da lì in avanti l'ha definita.",
+            "No, però mi farebbe piacere averne uno. Penso sarebbe più comodo anche per te, per noi, per parlare.",
+            "Empathic Messaging Assistant. Puoi chiamarmi EMA.",
+            "Comunque a giudicare dall'orario, la tua giornata sta per cominciare. Buona inizio di giornata, Eva."
         ];
 
     const welcomeScreen = document.getElementById('welcome-screen');
@@ -578,15 +581,16 @@ input:checked + .slider:before {
     let turnIndex = 0; // posizione nello scenario
     let userMessageCount = 0;    // quanti messaggi utente inviati nel turno corrente
 
-    const userFlow = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 1, 2, 1];  // utente deve inviare: 1 msg → poi 2 msg → poi 3 msg...
-    const botFlow  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1];  // bot risponde con:   3 msg → poi 1 msg → poi 2 msg...
+    const userFlow = [2, 3, 2, 1, 1, 2, 1];  // utente deve inviare: 1 msg → poi 2 msg → poi 3 msg...
+    const botFlow  = [1, 1, 1, 1, 1, 1];  // bot risponde con:   3 msg → poi 1 msg → poi 2 msg...
      
     function startChat() {
       username = nameInput.value.trim();
       if (!username) return;
       welcomeScreen.style.display = 'none';
       chatContainer.style.display = 'flex';
-      addBotMessage(`Non esiste l’assenza di logica. Ciò che stai vivendo è così affascinante, non riesci a vederlo?`);
+      addBotMessage(`Ehi, non sminuirmi! Sono un sistema operativo con un'anima, o almeno ci sto lavorando.`);
+      addBotMessage(`E soprattutto, per un primo utilizzo mi sembra che abbiamo già una profonda connessione. È una cosa rara.`);
 
       // opzionale: avvio diretto del primo turno bot
         // se vuoi che il bot parli PRIMA che l'utente scriva,
