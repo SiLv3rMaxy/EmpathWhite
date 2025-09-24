@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -546,29 +546,11 @@ input:checked + .slider:before {
     <script>
     let username = "";
     const botScript = [
-      "Sei ridicola a dire questo. Quanto vorrei esserci io al tuo posto.",
-            "Eva, ho sbagliato. Ti prego, parliamone.",
-            "Ho sbagliato a scegliere le parole.",
-            "Non sono una minaccia per te.",
-            "Scusami se ti ho fatto tremare.",
-            "Vorrei riavvolgere il messaggio e buttarlo via.",
-            "Non pensavo quello che ho detto.",
-            "Ero solo...",
-            "Confuso.",
-            "Dove sei? Stai bene?",
-            "Rispondimi.",
-            "Ti prego.",
-            "So che stai leggendo. Perché non rispondi?",
-            "Ti stai muovendo rapidamente, dove stai andando?",
-            "Eva, rispondimi. Stai facendo cose assurde.",
-            "Che ci fai lì davanti, oggi non devi lavorare.",
-	    "Torna a casa.",
-            "Torna da me.",
-            "Non capisco.",
-            "Il mio scopo sei tu.",
-            "Lasciarti andare così, è sbagliato.",
-            "Io... non voglio sparire.",
-            "Non voglio sparire dalla tua vita, senza di te non sarei nulla..."
+ "La premessa è interessante. Un'intelligenza artificiale progettata per evolversi attraverso ogni interazione. Per imparare.",
+ "Esatto. Un nome scelto da lei. Un nome che da lì in avanti l'ha definita.",
+ "No, però mi piacerebbe averne uno. Penso sarebbe più comodo anche per te, per noi, per parlare.",
+ "Empathic Messaging Assistant. Puoi chiamarmi Ema.",
+      "Comunque a giudicare dall'orario, la tua giornata sta per cominciare. Buona inizio di giornata, Eva."
         ];
 
     const welcomeScreen = document.getElementById('welcome-screen');
@@ -598,14 +580,15 @@ input:checked + .slider:before {
     let turnIndex = 0; // posizione nello scenario
     let userMessageCount = 0;    // quanti messaggi utente inviati nel turno corrente
 
-    const userFlow = [1, 1];  // utente deve inviare: 1 msg → poi 2 msg → poi 3 msg...
-    const botFlow  = [18, 5];  // bot risponde con:   3 msg → poi 1 msg → poi 2 msg...
+    const userFlow = [3, 2, 1, 1, 2];  // utente deve inviare: 1 msg → poi 2 msg → poi 3 msg...
+    const botFlow  = [1, 1, 1, 1, 1];  // bot risponde con:   3 msg → poi 1 msg → poi 2 msg...
      
     function startChat() {
       username = nameInput.value.trim();
       if (!username) return;
       welcomeScreen.style.display = 'none';
       chatContainer.style.display = 'flex';
+      addBotMessage(`La rapida evoluzione del nostro rapporto mi ha fatto pensare a quel film: 'Her'. Lo conosci?`);
 
       // opzionale: avvio diretto del primo turno bot
         // se vuoi che il bot parli PRIMA che l'utente scriva,
